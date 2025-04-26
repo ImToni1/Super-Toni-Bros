@@ -12,10 +12,10 @@ def run_game(num_platforms, height_variation, platform_spacing):
     pygame.display.set_caption("Super Toni Bros")
 
     base_path = os.path.dirname(os.path.abspath(__file__))
-    background_path = os.path.join(base_path, "../images/background.jpeg")
+    background_path = os.path.join(base_path, "../images/Background.jpeg")
     background_image = pygame.image.load(background_path).convert()
 
-    win_image_path = os.path.join(base_path, "../images/win.png")
+    win_image_path = os.path.join(base_path, "../images/Winner's_scene.png")
     win_image = pygame.image.load(win_image_path).convert()
     win_image = pygame.transform.scale(win_image, (SCREEN_WIDTH, SCREEN_HEIGHT)) 
 
@@ -25,7 +25,8 @@ def run_game(num_platforms, height_variation, platform_spacing):
     jump_strength = -15
     speed = 5
 
-    font = pygame.font.SysFont(None, 50)  
+    font = pygame.font.SysFont(None, 80)  
+    timer_font = pygame.font.SysFont(None, 35)  
 
     player = Player(100, SCREEN_HEIGHT - 150, 50, 50)
     platform_manager = PlatformManager(SCREEN_WIDTH, SCREEN_HEIGHT, num_platforms, height_variation=height_variation, platform_spacing=platform_spacing)
@@ -92,7 +93,7 @@ def run_game(num_platforms, height_variation, platform_spacing):
         platform_manager.draw(screen)
 
     
-        timer_text = font.render(f"Time: {elapsed_time:.2f} s", True, (0, 0, 0)) 
+        timer_text = timer_font.render(f"Time: {elapsed_time:.2f} s", True, (0, 0, 0)) 
         screen.blit(timer_text, (10, 10))
 
         pygame.display.update()

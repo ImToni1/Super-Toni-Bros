@@ -13,9 +13,9 @@ class PlatformManager:
         self.goal = None
 
         base_path = os.path.dirname(os.path.abspath(__file__))
-        self.platform_image = pygame.image.load(os.path.join(base_path, "../images/platforms.png")).convert_alpha()
-        self.ground_image = pygame.image.load(os.path.join(base_path, "../images/ground.png")).convert_alpha()
-        self.flag_image = pygame.image.load(os.path.join(base_path, "../images/flag.png")).convert_alpha()
+        self.platform_image = pygame.image.load(os.path.join(base_path, "../images/Platforms.png")).convert_alpha()
+        self.ground_image = pygame.image.load(os.path.join(base_path, "../images/Ground.png")).convert_alpha()
+        self.flag_image = pygame.image.load(os.path.join(base_path, "../images/Flag.png")).convert_alpha()
         self.flag_image = pygame.transform.scale(self.flag_image, (160, 160))  
 
     def generate_platforms(self):

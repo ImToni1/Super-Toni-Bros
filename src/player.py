@@ -12,7 +12,7 @@ class Player:
         self.on_ground = False
 
         base_path = os.path.dirname(os.path.abspath(__file__))
-        image_path = os.path.join(base_path, "../images/player.png")
+        image_path = os.path.join(base_path, "../images/Player.png")
         self.image = pygame.image.load(image_path).convert_alpha()
         self.image = pygame.transform.scale(self.image, (width, height))
 
