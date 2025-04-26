@@ -7,8 +7,8 @@ class PlatformManager:
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.num_platforms = num_platforms
-        self.height_variation = height_variation  # Visinska varijacija
-        self.platform_spacing = platform_spacing  # Razmak između platformi
+        self.height_variation = height_variation 
+        self.platform_spacing = platform_spacing  
         self.platforms = []
         self.goal = None
 
@@ -30,7 +30,7 @@ class PlatformManager:
             y_variation = random.randint(-self.height_variation, self.height_variation)
             platform = pygame.Rect(x_position, base_y + y_variation, 150, 20)
             predefined_platforms.append(platform)
-            x_position += self.platform_spacing  # Koristi platform_spacing
+            x_position += self.platform_spacing  
 
         self.platforms.extend(predefined_platforms)
 
