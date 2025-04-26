@@ -32,16 +32,23 @@ Super Toni Bros is a simple platformer game built in Python using the `pygame` l
 - **Platforms**: Platforms are randomly generated with configurable height variation and spacing.
 - **Victory Screen**: When the player reaches the goal, a "You Win!" screen is displayed along with the time taken to complete the game.
 
-## Directory Structure
-Super-Toni-Bros/ ├── images/ │ ├── Background.jpeg │ ├── Player.png │ ├── Platforms.png │ ├── Ground.png │ └── Winner's_scene.png ├── src/ │ ├── main.py │ ├── player.py │ └── platforms.py ├── start.py └── README.md
+### Description of folders and files:
+
+- **images/** – Contains all images used in the game (background, player, platforms, etc.).
+- **src/** – Main source code:
+  - `main.py` – Core game logic.
+  - `player.py` – Logic for controlling the player.
+  - `platforms.py` – Logic for handling platforms.
+- **start.py** – Script to launch the game.
+- **README.md** – This document describing the project.
 
 
 
 ## Requirements
 
 - Python 3.x
-- [pygame](http://_vscodecontentref_/1) library
+- [pygame](https://www.pygame.org/news) library
 
-Install [pygame](http://_vscodecontentref_/2) if it's not already installed:
+Install [pygame](https://www.pygame.org/news) if it's not already installed:
 ```bash
 pip install pygame
