@@ -2,9 +2,11 @@ import pygame
 import sys
 import os
 from platforms import PlatformManager
-from player import Player  
+from player import Player
 
-def run_game(num_platforms, height_variation, platform_spacing):  
+LEVEL_FILEPATH = "level1.txt"
+
+def run_game(level_filepath):
     pygame.init()
 
     SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
@@ -17,7 +19,7 @@ def run_game(num_platforms, height_variation, platform_spacing):
 
     win_image_path = os.path.join(base_path, "../images/Winner's_scene.png")
     win_image = pygame.image.load(win_image_path).convert()
-    win_image = pygame.transform.scale(win_image, (SCREEN_WIDTH, SCREEN_HEIGHT)) 
+    win_image = pygame.transform.scale(win_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
     clock = pygame.time.Clock()
     FPS = 60
@@ -25,27 +27,26 @@ def run_game(num_platforms, height_variation, platform_spacing):
     jump_strength = -15
     speed = 5
 
-    font = pygame.font.SysFont(None, 80)  
-    timer_font = pygame.font.SysFont(None, 35)  
+    font = pygame.font.SysFont(None, 80)
+    timer_font = pygame.font.SysFont(None, 35)
 
     player = Player(100, SCREEN_HEIGHT - 150, 50, 50)
-    platform_manager = PlatformManager(SCREEN_WIDTH, SCREEN_HEIGHT, num_platforms, height_variation=height_variation, platform_spacing=platform_spacing)
+    platform_manager = PlatformManager(SCREEN_WIDTH, SCREEN_HEIGHT, level_filepath)
     platform_manager.generate_platforms()
 
-    start_time = pygame.time.get_ticks()  
+    start_time = pygame.time.get_ticks()
 
     def reset_game():
-        nonlocal player, platform_manager
-        player.reset(100, SCREEN_HEIGHT - 150)  
-        platform_manager = PlatformManager(SCREEN_WIDTH, SCREEN_HEIGHT, num_platforms, height_variation=height_variation, platform_spacing=platform_spacing)
+        nonlocal player, platform_manager, start_time
+        player.reset(100, SCREEN_HEIGHT - 150)
+        platform_manager = PlatformManager(SCREEN_WIDTH, SCREEN_HEIGHT, level_filepath)
         platform_manager.generate_platforms()
-
-   
+        start_time = pygame.time.get_ticks()
 
     def show_victory_screen(elapsed_time):
-        screen.blit(win_image, (0, 0)) 
-        victory_text = font.render("You Win!", True, (0, 0, 0)) 
-        time_text = font.render(f"Time: {elapsed_time:.2f} seconds", True, (0, 0, 0))  
+        screen.blit(win_image, (0, 0))
+        victory_text = font.render("You Win!", True, (0, 0, 0))
+        time_text = font.render(f"Time: {elapsed_time:.2f} seconds", True, (0, 0, 0))
 
         screen.blit(victory_text, (SCREEN_WIDTH // 2 - victory_text.get_width() // 2, SCREEN_HEIGHT // 3))
         screen.blit(time_text, (SCREEN_WIDTH // 2 - time_text.get_width() // 2, SCREEN_HEIGHT // 2))
@@ -61,14 +62,15 @@ def run_game(num_platforms, height_variation, platform_spacing):
     running = True
     while running:
         clock.tick(FPS)
-        elapsed_time = (pygame.time.get_ticks() - start_time) / 1000  
+        elapsed_time = (pygame.time.get_ticks() - start_time) / 1000
 
-        for x in range(0, SCREEN_WIDTH, background_image.get_width()):
-            for y in range(0, SCREEN_HEIGHT, background_image.get_height()):
-                screen.blit(background_image, (x, y))
+        for x_bg in range(0, SCREEN_WIDTH, background_image.get_width()):
+            for y_bg in range(0, SCREEN_HEIGHT, background_image.get_height()):
+                screen.blit(background_image, (x_bg, y_bg))
 
         keys = pygame.key.get_pressed()
         moving_right = keys[pygame.K_RIGHT]
+
         if keys[pygame.K_SPACE] and player.on_ground:
             player.jump(jump_strength)
 
@@ -77,7 +79,10 @@ def run_game(num_platforms, height_variation, platform_spacing):
         if player.rect.top > SCREEN_HEIGHT:
             reset_game()
 
-        scroll_offset = speed if moving_right else 0
+        scroll_offset = 0
+        if moving_right:
+            scroll_offset = speed
+
         platform_manager.update_platforms(scroll_offset)
 
         player.on_ground = False
@@ -86,14 +91,14 @@ def run_game(num_platforms, height_variation, platform_spacing):
                 break
 
         if platform_manager.goal and player.rect.colliderect(platform_manager.goal):
-            show_victory_screen(elapsed_time)  
+            show_victory_screen(elapsed_time)
             running = False
+            break
 
         player.draw(screen)
         platform_manager.draw(screen)
 
-    
-        timer_text = timer_font.render(f"Time: {elapsed_time:.2f} s", True, (0, 0, 0)) 
+        timer_text = timer_font.render(f"Time: {elapsed_time:.2f} s", True, (0, 0, 0))
         screen.blit(timer_text, (10, 10))
 
         pygame.display.update()
@@ -101,7 +106,6 @@ def run_game(num_platforms, height_variation, platform_spacing):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            
 
     pygame.quit()
     sys.exit()
