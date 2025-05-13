@@ -141,4 +141,3 @@ def run_game(level_filepath): # level_filepath se sada koristi kako je i namijen
 
     pygame.quit()
     sys.exit()
-

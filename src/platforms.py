@@ -2,7 +2,7 @@ import pygame
 import os
 
 class PlatformManager:
-    FIXED_PLATFORM_HEIGHT = 0
+    FIXED_PLATFORM_HEIGHT = 30
 
     def __init__(self, screen_width, screen_height, level_filepath):
         self.screen_width = screen_width
