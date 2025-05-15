@@ -22,7 +22,7 @@ Super Toni Bros is a simple platformer game built in Python using the `pygame` l
 
 > [!NOTE]
 > **2. Configure and Run the Game**
-> * Ensure the `level_filepath` variable in `start.py` correctly points to `os.path.join(src_path, "level.txt")`. [cite: 1]
+> * Ensure the `level_filepath` variable in `start.py` correctly points to `os.path.join(src_path, "level.txt")`.
 > * Start the game by running:
 >     ```bash
 >     python start.py
@@ -30,6 +30,7 @@ Super Toni Bros is a simple platformer game built in Python using the `pygame` l
 
 **3. Controls**:
 * **Right Arrow (`→`)**: Move the player to the right (scrolls the platforms to the left).
+* **Left Arrow (`←`)**: Move the player to the left (scrolls the platforms to the right).
 * **Spacebar (`Space`)**: Jump (only works when the player is on the ground).
 
 **4. Objective**:
