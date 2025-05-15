@@ -41,10 +41,8 @@ def run_game(level_filepath):
         player.reset(100, SCREEN_HEIGHT - 150)
         platform_manager = PlatformManager(SCREEN_WIDTH, SCREEN_HEIGHT, level_filepath)
         platform_manager.generate_platforms()
-        # start_time se ne resetira
 
     def show_victory_screen(elapsed_time):
-        # ... (ostatak funkcije ostaje isti)
         screen.blit(win_image, (0, 0))
         victory_text = font.render("You Win!", True, (0, 0, 0))
         time_text_str = f"Time: {elapsed_time:.2f} seconds"
@@ -67,7 +65,7 @@ def run_game(level_filepath):
     
     running = True
     game_won = False 
-    victory_elapsed_time = 0 # Inicijalizacija
+    victory_elapsed_time = 0 
 
     while running:
         clock.tick(FPS)
@@ -89,9 +87,7 @@ def run_game(level_filepath):
 
         if player.rect.top > SCREEN_HEIGHT: 
             reset_game()
-            # Timer se NEĆE resetirati
 
-        # --- LOGIKA ZA NEPROBOJNE ZIDOVE ---
         requested_scroll_offset = 0
         if keys[pygame.K_RIGHT]:
             requested_scroll_offset = speed
@@ -102,43 +98,27 @@ def run_game(level_filepath):
 
         actual_scroll_offset = requested_scroll_offset
 
-        # Provjera sudara s lijevim zidom (platform_manager.platforms[2])
-        if requested_scroll_offset < 0: # Igrac se krece lijevo (platforme idu desno)
+        if requested_scroll_offset < 0: 
             if len(platform_manager.platforms) > 2:
                 left_wall = platform_manager.platforms[2]
-                # Ako bi desni rub lijevog zida presao lijevi rub igraca
                 if (left_wall.right - requested_scroll_offset) > player.rect.left:
-                    # Zaustavi scroll tako da desni rub zida bude tocno na lijevom rubu igraca
                     actual_scroll_offset = left_wall.right - player.rect.left 
-                    # Osiguraj da ne scrollamo vise nego sto je trazeno ili u suprotnom smjeru
                     actual_scroll_offset = max(actual_scroll_offset, requested_scroll_offset)
 
-
-        # Provjera sudara s desnim zidom (platform_manager.platforms[1])
-        elif requested_scroll_offset > 0: # Igrac se krece desno (platforme idu lijevo)
+        elif requested_scroll_offset > 0: 
             if len(platform_manager.platforms) > 1:
                 right_wall = platform_manager.platforms[1]
-                # Ako bi lijevi rub desnog zida presao desni rub igraca
                 if (right_wall.left - requested_scroll_offset) < player.rect.right:
-                    # Zaustavi scroll tako da lijevi rub zida bude tocno na desnom rubu igraca
-                   
-                    # Osiguraj da ne scrollamo vise nego sto je trazeno ili u suprotnom smjeru
                     actual_scroll_offset = min(actual_scroll_offset, requested_scroll_offset)
         
         platform_manager.update_platforms(actual_scroll_offset)
-        # --- KRAJ LOGIKE ZA NEPROBOJNE ZIDOVE ---
 
         player.on_ground = False
         for plat_idx, plat in enumerate(platform_manager.platforms):
-            # Preskoči provjeru vertikalne kolizije za naše bočne zidove ako ne želimo da se na njima može stajati
-            # Lijevi zid je na indeksu 2, desni na 1
-            if plat_idx == 2: # Ovo su naši bočni zidovi
-                 # Ako želiš da budu samo bočne prepreke, a ne i platforme za stajanje:
-                if player.rect.colliderect(plat): # Samo provjeri preklapanje za bočne
-                    # Ovdje bi se mogla dodati logika za "odbijanje" igrača ako je potrebno,
-                    # ali scroll limitacija gore već rješava neprobojnost.
-                    pass # Ne postavljaj on_ground za bočne zidove automatski
-                continue # Preskoči detaljnu provjeru slijetanja za bočne zidove
+            if plat_idx == 2: 
+                if player.rect.colliderect(plat): 
+                    pass 
+                continue 
 
             if player.collide_with_platform(plat):
                 player.on_ground = True 

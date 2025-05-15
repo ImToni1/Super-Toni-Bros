@@ -10,28 +10,23 @@ class Player:
         self.rect = pygame.Rect(x, y, original_width, original_height)
         self.vel_y = 0
         self.on_ground = False
-        self.facing_left = False # Nova varijabla za praćenje smjera
+        self.facing_left = False
 
         base_path = os.path.dirname(os.path.abspath(__file__))
         image_path = os.path.join(base_path, "../images/Player.png")
         
-        # Učitavanje originalne slike (okrenuta desno)
         self.image_right = pygame.image.load(image_path).convert_alpha()
         self.image_right = pygame.transform.scale(self.image_right, (original_width, original_height))
-        
-        # Kreiranje slike okrenute lijevo (zrcaljenjem)
-        self.image_left = pygame.transform.flip(self.image_right, True, False) # True za horizontalno, False za vertikalno
-        
-        # Trenutna slika koja se koristi za crtanje
-        self.image = self.image_right # Počinje okrenut desno
+        self.image_left = pygame.transform.flip(self.image_right, True, False)
+        self.image = self.image_right
 
     def reset(self, x, y):
         self.rect.x = x
         self.rect.y = y
         self.vel_y = 0
         self.on_ground = False
-        self.facing_left = False # Resetiraj i smjer
-        self.image = self.image_right # Vrati na originalnu sliku
+        self.facing_left = False
+        self.image = self.image_right
 
     def jump(self, jump_strength):
         self.vel_y = jump_strength
@@ -42,7 +37,6 @@ class Player:
         self.rect.y += self.vel_y
 
     def collide_with_platform(self, platform_rect):
-        # Prvo provjeri općenito preklapanje pravokutnika
         if not self.rect.colliderect(platform_rect):
             return False
 
@@ -66,7 +60,6 @@ class Player:
                 
         return False
 
-    # Nova metoda za ažuriranje smjera i slike
     def update_image_direction(self):
         if self.facing_left:
             self.image = self.image_left
@@ -74,5 +67,5 @@ class Player:
             self.image = self.image_right
 
     def draw(self, screen):
-        self.update_image_direction() # Ažuriraj sliku prije crtanja
+        self.update_image_direction()
         screen.blit(self.image, (self.rect.x, self.rect.y))
