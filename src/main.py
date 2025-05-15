@@ -4,7 +4,7 @@ import os
 from platforms import PlatformManager
 from player import Player
 
-LEVEL_FILEPATH = "level.txt"
+LEVEL_FILEPATH = "level.txt" 
 
 def run_game(level_filepath):
     pygame.init()
@@ -25,39 +25,33 @@ def run_game(level_filepath):
     FPS = 60
     gravity = 0.8
     jump_strength = -15
-    speed = 5
+    speed = 5 
 
     font = pygame.font.SysFont(None, 80)
     timer_font = pygame.font.SysFont(None, 35)
 
-    player = Player(100, SCREEN_HEIGHT - 150, 50, 50)
+    player = Player(100, SCREEN_HEIGHT - 150, 50, 50) 
     platform_manager = PlatformManager(SCREEN_WIDTH, SCREEN_HEIGHT, level_filepath)
     platform_manager.generate_platforms()
 
     start_time = pygame.time.get_ticks()
 
-    # 1. Prilagodi reset_game funkciju
-    def reset_game_state():
-        nonlocal player, platform_manager, start_time, game_won
+    def reset_game():
+        nonlocal player, platform_manager
         player.reset(100, SCREEN_HEIGHT - 150)
         platform_manager = PlatformManager(SCREEN_WIDTH, SCREEN_HEIGHT, level_filepath)
         platform_manager.generate_platforms()
-        start_time = pygame.time.get_ticks() # Resetiraj vrijeme
-        game_won = False # Resetiraj status pobjede
+        # start_time se ne resetira
 
-    # 2. Izmijeni show_victory_screen funkciju
     def show_victory_screen(elapsed_time):
-        nonlocal running # Dodajemo nonlocal za 'running' ako ga želimo direktno mijenjati
+        # ... (ostatak funkcije ostaje isti)
         screen.blit(win_image, (0, 0))
         victory_text = font.render("You Win!", True, (0, 0, 0))
         time_text_str = f"Time: {elapsed_time:.2f} seconds"
         time_text = font.render(time_text_str, True, (0, 0, 0))
-        restart_text = timer_font.render("Press 'R' to Restart or any other key to Exit", True, (0,0,0))
-
 
         screen.blit(victory_text, (SCREEN_WIDTH // 2 - victory_text.get_width() // 2, SCREEN_HEIGHT // 3))
         screen.blit(time_text, (SCREEN_WIDTH // 2 - time_text.get_width() // 2, SCREEN_HEIGHT // 2))
-        screen.blit(restart_text, (SCREEN_WIDTH // 2 - restart_text.get_width() // 2, SCREEN_HEIGHT // 2 + 60))
         pygame.display.update()
 
         waiting = True
@@ -66,23 +60,18 @@ def run_game(level_filepath):
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r: # Ako je pritisnuta tipka R
-                        reset_game_state() # Resetiraj stanje igre
-                        return "restart" # Vrati "restart"
-                    else: # Bilo koja druga tipka
-                        return "exit" # Vrati "exit"
-                if event.type == pygame.MOUSEBUTTONDOWN: # Klik mišem također izlazi
-                    return "exit"
-            # Nema potrebe za `if not waiting: break` jer return prekida petlju
-
+                if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN: 
+                    waiting = False 
+            if not waiting: 
+                break 
+    
     running = True
-    game_won = False
-    victory_elapsed_time = 0
+    game_won = False 
+    victory_elapsed_time = 0 # Inicijalizacija
 
     while running:
         clock.tick(FPS)
-
+        
         if not game_won:
             current_ticks = pygame.time.get_ticks()
             elapsed_time = (current_ticks - start_time) / 1000
@@ -93,88 +82,87 @@ def run_game(level_filepath):
 
         keys = pygame.key.get_pressed()
 
-        if not game_won: # Omogući kontrole samo ako igra nije pobijeđena
-            if keys[pygame.K_SPACE] and player.on_ground:
-                player.jump(jump_strength)
+        if keys[pygame.K_SPACE] and player.on_ground:
+            player.jump(jump_strength)
 
-            player.apply_gravity(gravity)
+        player.apply_gravity(gravity)
 
-            if player.rect.top > SCREEN_HEIGHT:
-                reset_game_state() # Koristi novu funkciju za resetiranje
+        if player.rect.top > SCREEN_HEIGHT: 
+            reset_game()
+            # Timer se NEĆE resetirati
 
-            requested_scroll_offset = 0
-            if keys[pygame.K_RIGHT]:
-                requested_scroll_offset = speed
-                player.facing_left = False
-            elif keys[pygame.K_LEFT]:
-                requested_scroll_offset = -speed
-                player.facing_left = True
-            
-            actual_scroll_offset = requested_scroll_offset
+        # --- LOGIKA ZA NEPROBOJNE ZIDOVE ---
+        requested_scroll_offset = 0
+        if keys[pygame.K_RIGHT]:
+            requested_scroll_offset = speed
+            player.facing_left = False
+        elif keys[pygame.K_LEFT]:
+            requested_scroll_offset = -speed 
+            player.facing_left = True
 
-            # --- LOGIKA ZA NEPROBOJNE ZIDOVE --- (ostaje ista)
-            if requested_scroll_offset < 0: 
-                if len(platform_manager.platforms) > 2:
-                    left_wall = platform_manager.platforms[2]
-                    if (left_wall.right - requested_scroll_offset) > player.rect.left:
-                        actual_scroll_offset = left_wall.right - player.rect.left
-                        actual_scroll_offset = max(actual_scroll_offset, requested_scroll_offset)
-            elif requested_scroll_offset > 0: 
-                if len(platform_manager.platforms) > 1:
-                    right_wall = platform_manager.platforms[1]
-                    if (right_wall.left - requested_scroll_offset) < player.rect.right:
-                        actual_scroll_offset = min(actual_scroll_offset, requested_scroll_offset)
-            
-            platform_manager.update_platforms(actual_scroll_offset)
-            # --- KRAJ LOGIKE ZA NEPROBOJNE ZIDOVE ---
+        actual_scroll_offset = requested_scroll_offset
 
-            player.on_ground = False
-            for plat_idx, plat in enumerate(platform_manager.platforms):
-                if plat_idx == 2: 
-                    if player.rect.colliderect(plat):
-                        pass 
-                    continue 
+        # Provjera sudara s lijevim zidom (platform_manager.platforms[2])
+        if requested_scroll_offset < 0: # Igrac se krece lijevo (platforme idu desno)
+            if len(platform_manager.platforms) > 2:
+                left_wall = platform_manager.platforms[2]
+                # Ako bi desni rub lijevog zida presao lijevi rub igraca
+                if (left_wall.right - requested_scroll_offset) > player.rect.left:
+                    # Zaustavi scroll tako da desni rub zida bude tocno na lijevom rubu igraca
+                    actual_scroll_offset = left_wall.right - player.rect.left 
+                    # Osiguraj da ne scrollamo vise nego sto je trazeno ili u suprotnom smjeru
+                    actual_scroll_offset = max(actual_scroll_offset, requested_scroll_offset)
 
-                if player.collide_with_platform(plat):
-                    player.on_ground = True
-                    break
+
+        # Provjera sudara s desnim zidom (platform_manager.platforms[1])
+        elif requested_scroll_offset > 0: # Igrac se krece desno (platforme idu lijevo)
+            if len(platform_manager.platforms) > 1:
+                right_wall = platform_manager.platforms[1]
+                # Ako bi lijevi rub desnog zida presao desni rub igraca
+                if (right_wall.left - requested_scroll_offset) < player.rect.right:
+                    # Zaustavi scroll tako da lijevi rub zida bude tocno na desnom rubu igraca
+                   
+                    # Osiguraj da ne scrollamo vise nego sto je trazeno ili u suprotnom smjeru
+                    actual_scroll_offset = min(actual_scroll_offset, requested_scroll_offset)
         
-        # 3. Ažuriraj glavnu petlju igre za rukovanje pobjedom
+        platform_manager.update_platforms(actual_scroll_offset)
+        # --- KRAJ LOGIKE ZA NEPROBOJNE ZIDOVE ---
+
+        player.on_ground = False
+        for plat_idx, plat in enumerate(platform_manager.platforms):
+            # Preskoči provjeru vertikalne kolizije za naše bočne zidove ako ne želimo da se na njima može stajati
+            # Lijevi zid je na indeksu 2, desni na 1
+            if plat_idx == 2: # Ovo su naši bočni zidovi
+                 # Ako želiš da budu samo bočne prepreke, a ne i platforme za stajanje:
+                if player.rect.colliderect(plat): # Samo provjeri preklapanje za bočne
+                    # Ovdje bi se mogla dodati logika za "odbijanje" igrača ako je potrebno,
+                    # ali scroll limitacija gore već rješava neprobojnost.
+                    pass # Ne postavljaj on_ground za bočne zidove automatski
+                continue # Preskoči detaljnu provjeru slijetanja za bočne zidove
+
+            if player.collide_with_platform(plat):
+                player.on_ground = True 
+                break
+        
         if not game_won and platform_manager.goal and player.rect.colliderect(platform_manager.goal):
-            game_won = True
-            victory_elapsed_time = elapsed_time
-            action_after_victory = show_victory_screen(victory_elapsed_time) # Spremi povratnu vrijednost
+            game_won = True 
+            victory_elapsed_time = elapsed_time 
+            show_victory_screen(victory_elapsed_time)
+            running = False 
+            break 
 
-            if action_after_victory == "restart":
-                # game_won je već postavljen na False i start_time resetiran u reset_game_state()
-                # Petlja će se prirodno nastaviti
-                pass
-            elif action_after_victory == "exit":
-                running = False # Završi igru
-                # Nema potrebe za break ovdje jer će se petlja završiti zbog running = False
+        player.draw(screen)
+        platform_manager.draw(screen)
 
-        if not game_won: # Crtaj igrača i platforme samo ako igra nije u stanju pobjede (tj. prije nego što se prikaže ekran za pobjedu)
-            player.draw(screen)
-            platform_manager.draw(screen)
-
-        # Prikaz vremena će se sada upravljati unutar game_won stanja ili show_victory_screen
-        if not game_won:
-            timer_text = timer_font.render(f"Time: {elapsed_time:.2f} s", True, (0, 0, 0))
-            screen.blit(timer_text, (10, 10))
-        # Ako je game_won, vrijeme i poruka za restart se prikazuju unutar show_victory_screen
+        timer_display_value = victory_elapsed_time if game_won else elapsed_time
+        timer_text = timer_font.render(f"Time: {timer_display_value:.2f} s", True, (0, 0, 0))
+        screen.blit(timer_text, (10, 10))
 
         pygame.display.update()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-                
+
     pygame.quit()
     sys.exit()
-
-# Ako želite pokrenuti igru direktno iz ove datoteke za testiranje:
-# if __name__ == '__main__':
-#     # Pretpostavimo da je level.txt u istom direktoriju kao main.py ili specificirajte putanju
-#     src_path = os.path.dirname(os.path.abspath(__file__))
-#     level_file = os.path.join(src_path, "level.txt") # Ili LEVEL_FILEPATH ako je globalno definiran
-#     run_game(level_file)
