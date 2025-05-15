@@ -121,7 +121,7 @@ def run_game(level_filepath):
                 # Ako bi lijevi rub desnog zida presao desni rub igraca
                 if (right_wall.left - requested_scroll_offset) < player.rect.right:
                     # Zaustavi scroll tako da lijevi rub zida bude tocno na desnom rubu igraca
-                    actual_scroll_offset = right_wall.left - player.rect.right
+                   
                     # Osiguraj da ne scrollamo vise nego sto je trazeno ili u suprotnom smjeru
                     actual_scroll_offset = min(actual_scroll_offset, requested_scroll_offset)
         
@@ -132,7 +132,7 @@ def run_game(level_filepath):
         for plat_idx, plat in enumerate(platform_manager.platforms):
             # Preskoči provjeru vertikalne kolizije za naše bočne zidove ako ne želimo da se na njima može stajati
             # Lijevi zid je na indeksu 2, desni na 1
-            if plat_idx == 1 or plat_idx == 2: # Ovo su naši bočni zidovi
+            if plat_idx == 2: # Ovo su naši bočni zidovi
                  # Ako želiš da budu samo bočne prepreke, a ne i platforme za stajanje:
                 if player.rect.colliderect(plat): # Samo provjeri preklapanje za bočne
                     # Ovdje bi se mogla dodati logika za "odbijanje" igrača ako je potrebno,
